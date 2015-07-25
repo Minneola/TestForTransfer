@@ -12,7 +12,7 @@ composer require minneola/testfoo
 
 require __DIR__ . '/vendor/autoload.php';
 
-$app =
+$app = App::boot();
 
 
 ```

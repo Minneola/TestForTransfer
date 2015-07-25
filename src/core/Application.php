@@ -16,6 +16,7 @@ class Application
 	public static function boot()
 	{
 		self::$app = new Project();
+		return self::$app;
 	}
 
 } 
