@@ -1,7 +1,14 @@
 <?php
 
-class Fine {
-  
-  // hat funktioniert
+namespace Minneola\TestFoo;
+
+/**
+ * Class Fine
+ * @package Minneola\TestFoo
+ */
+class Fine
+{
+
+	// hat funktioniert
 
 }
