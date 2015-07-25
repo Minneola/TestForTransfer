@@ -13,9 +13,17 @@ class Application
 {
 	private static $app;
 
+	public $test = [];
+
 	public static function boot()
 	{
 		self::$app = new Project();
+
+
+		self::$app->test['App'] = new Application();
+
+
+
 		return self::$app;
 	}
 
