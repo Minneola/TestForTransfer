@@ -16,3 +16,7 @@ $app = App::boot();
 
 
 ```
+
+
+# Licence
+[MIT](LICENCE)
