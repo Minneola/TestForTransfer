@@ -14,6 +14,7 @@ require __DIR__ . '/vendor/autoload.php';
 
 $app = App::boot();
 
+// Using the PHP alias in the framework 
 echo Cain::call();
 
 
@@ -21,4 +22,5 @@ echo Cain::call();
 
 
 # Licence
+
 [MIT](LICENCE)
