@@ -1,5 +1,7 @@
 <?php
 
+namespace Minneola\TestFoo\Cosi\Puk;
+
 class Masterli implements Drylux
 {
 
