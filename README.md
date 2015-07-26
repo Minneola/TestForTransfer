@@ -14,6 +14,8 @@ require __DIR__ . '/vendor/autoload.php';
 
 $app = App::boot();
 
+echo Cain::call();
+
 
 ```
 
