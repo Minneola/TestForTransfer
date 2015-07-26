@@ -1,0 +1,17 @@
+{
+    "name": "minneola/testfoo",
+    "authors": [
+        {
+            "name": "Tobias Maxham",
+            "email": "git2015@maxham.de"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Minneola\\TestFoo\\": "src"
+        }
+    }
+}
