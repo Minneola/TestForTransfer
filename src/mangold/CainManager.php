@@ -2,12 +2,14 @@
 
 namespace Minneola\TestFoo\Mangold;
 
+use Minneola\TestFoo\Support\SupportManager;
+
 /**
  * Class CainManager
  * @package Minneola\TestFoo\Mangold
  * @author Tobias Maxham <git2015@maxham.de>
  */
-class CainManager
+class CainManager extends SupportManager
 {
 
 	public function call()
