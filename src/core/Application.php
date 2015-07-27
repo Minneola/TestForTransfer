@@ -3,8 +3,7 @@
 namespace Minneola\TestFoo\Core;
 
 use Minneola\TestFoo\Core\Arcadia\Loader;
-use Minneola\TestFoo\Core\Arcadia\Project;
-use Minneola\TestFoo\Mangold\CainFacade;
+use Minneola\TestFoo\Support\Facade;
 
 /**
  * Class Application
@@ -13,39 +12,32 @@ use Minneola\TestFoo\Mangold\CainFacade;
  */
 class Application implements \ArrayAccess
 {
-	private static $app;
 
-	public $test = [];
+	private static $app;
+	private $instances = [];
+
+	private $rootPath;
 
 	protected $aliases = [
 		'cain' => 'Minneola\\TestFoo\\Mangold\\CainManager',
 	];
 
-	public static function boot()
+	public function __construct($path = NULL)
 	{
-		self::$app = new Project();
-
-
-		$app = new Application();
-		self::getApp()->test['App'] = $app;
-
-
-
-		CainFacade::clearResolvedInstances();
-
-		CainFacade::setFacadeApplication($app);
-		Loader::getInstance($app->getAliases())->register();
-
-		//self::getApp()->test['App']->alias();
-
-		return self::$app;
+		$this->rootPath = $path;
 	}
 
-	public function alias()
+	public function boot()
 	{
-		foreach($this->getAliases() as $alias => $class) {
-			class_alias($class, $alias);
-		}
+		$this->initiate();
+		return $this;
+	}
+
+	private function initiate()
+	{
+		Facade::clearAll();
+		Facade::setApp($this);
+		Loader::getInstance($this->getAliases())->register();
 	}
 
 	/**
@@ -61,16 +53,19 @@ class Application implements \ArrayAccess
 	 */
 	public function getAliases()
 	{
-		return [
-			'Cain' => '\\Minneola\\TestFoo\\Mangold\\CainFacade',
-		];
+		return require $this->rootPath.'/config/setup.php';
 	}
 
-
+	public function alias()
+	{
+		foreach ($this->getAliases() as $alias => $class) {
+			class_alias($class, $alias);
+		}
+	}
 
 	public function offsetExists($key)
 	{
-		return isset($this->bindings[$key]);
+		return isset($this->aliases[$key]);
 	}
 
 	public function offsetGet($key)
@@ -78,44 +73,30 @@ class Application implements \ArrayAccess
 		return $this->make($key);
 	}
 
-	public function offsetSet($key, $value)
+	public function make($abstract)
 	{
-		if ( ! $value instanceof Closure)
-		{
-			$value = function() use ($value)
-			{
-				return $value;
-			};
-		}
-
-		$this->bind($key, $value);
+		$abstract = $this->getAlias($abstract);
+		return new $abstract;
 	}
-
-
-	public function offsetUnset($key)
-	{
-		unset($this->bindings[$key], $this->instances[$key]);
-	}
-
 
 	protected function getAlias($abstract)
 	{
 		return isset($this->aliases[$abstract]) ? $this->aliases[$abstract] : $abstract;
 	}
 
-	/**
-	 * Resolve the given type from the container.
-	 *
-	 * (Overriding Container::make)
-	 *
-	 * @param  string  $abstract
-	 * @param  array   $parameters
-	 * @return mixed
-	 */
-	public function make($abstract, $parameters = array())
+	public function offsetSet($key, $value)
 	{
-		$abstract = $this->getAlias($abstract);
-		return new $abstract;
+		if (!$value instanceof \Closure) {
+			$value = function () use ($value) {
+				return $value;
+			};
+		}
+		$this->instances[$key] = $value;
+	}
+
+	public function offsetUnset($key)
+	{
+		unset($this->instances[$key]);
 	}
 
 } 
