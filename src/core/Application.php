@@ -3,6 +3,7 @@
 namespace Minneola\TestFoo\Core;
 
 use Minneola\TestFoo\Core\Arcadia\Loader;
+use Minneola\TestFoo\Crash\Diamon;
 use Minneola\TestFoo\Support\Facade;
 
 /**
@@ -13,24 +14,64 @@ use Minneola\TestFoo\Support\Facade;
 class Application implements \ArrayAccess
 {
 
-	private static $app;
+	public static $app;
+	public  static $smiles = ['GET' => [], 'POST' => []];
+
 	private $instances = [];
 
 	private $rootPath;
 
 	protected $aliases = [
+		'app' => 'Minneola\\TestFoo\\Core\\Application',
 		'cain' => 'Minneola\\TestFoo\\Mangold\\CainManager',
+		'smile' => 'Minneola\\TestFoo\\Macaroni\\SmileFactory',
 	];
 
 	public function __construct($path = NULL)
 	{
 		$this->rootPath = $path;
+		self::$app = $this;
+		return self::$app;
+	}
+
+	public static function app()
+	{
+		return self::$app;
+	}
+
+	public static function smiles()
+	{
+		$app = self::app();
+		return $app::$smiles;
+	}
+
+	public static function setSmile($method, $path, $attributes = NULL)
+	{
+		self::$smiles[$method][$path] = [$path, $attributes];
 	}
 
 	public function boot()
 	{
 		$this->initiate();
+		$this->loadSmiles();
 		return $this;
+	}
+
+	public function run()
+	{
+		$data = new Diamon();
+		$url = $data->request_uri;
+		$method = $data->request_method;
+
+		if(array_key_exists($url, \App::smiles()[$method]))
+		{
+			return call_user_func(\App::smiles()[$method][$url][1]);
+		}
+		if(array_key_exists(substr($url,1), \App::smiles()[$method]))
+		{
+			return call_user_func(\App::smiles()[$method][substr($url,1)][1]);
+		}
+		return NULL;
 	}
 
 	private function initiate()
@@ -48,12 +89,19 @@ class Application implements \ArrayAccess
 		return self::$app;
 	}
 
+	private function loadSmiles()
+	{
+		$file = $this->rootPath . '/app/smiles.php';
+		if(!file_exists($file)) throw new \Exception("The File $file was not found!");
+		require_once $file;
+	}
+
 	/**
 	 * @return array $aliases
 	 */
 	public function getAliases()
 	{
-		return require $this->rootPath.'/config/setup.php';
+		return require $this->rootPath . '/config/setup.php';
 	}
 
 	public function alias()

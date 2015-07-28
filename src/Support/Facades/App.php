@@ -5,14 +5,14 @@ namespace Minneola\TestFoo\Support\Facades;
 use Minneola\TestFoo\Support\Facade;
 
 /**
- * Class Cain
+ * Class App
  * @package Minneola\TestFoo\Support\Facades
  * @author Tobias Maxham <git2015@maxham.de>
  */
-class Cain extends Facade
+class App extends Facade
 {
 	public static function getFacadeName()
 	{
-		return 'cain';
+		return 'app';
 	}
 } 
