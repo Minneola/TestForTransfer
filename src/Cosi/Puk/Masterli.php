@@ -7,7 +7,7 @@ namespace Minneola\TestFoo\Cosi\Puk;
  * @package Minneola\TestFoo\Cosi\Puk
  * @author Tobias Maxham <git2015@maxham.de>
  */
-class Masterli implements Drylux
+class Masterli
 {
 
 	use Mixedvu;
