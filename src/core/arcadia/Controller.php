@@ -1,6 +1,7 @@
 <?php
 
 namespace Minneola\TestFoo\Core\Arcadia;
+use Minneola\TestFoo\Akinator\Parser;
 
 /**
  * Class Controller
@@ -68,9 +69,11 @@ class Controller
 
 	private function parseHTML()
 	{
-		ob_start();
-		include $this->app()->viewPath() .$this->lawyer.'.php';
+		$c = file_get_contents( $this->app()->viewPath() .$this->lawyer.'.php');
+		ob_start ();
+		eval('?>'.new Parser($c).'<?php;');
 		$result = ob_get_clean();
+		ob_end_clean();
 		return $result;
 	}
 
