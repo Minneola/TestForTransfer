@@ -33,8 +33,8 @@ class Parser
 	protected function parseSpecials($res)
 	{
 		return preg_replace(
-			['/@break/', '/@continue/'],
-			['<?php break; ?>', '<?php continue; ?>'],
+			['/@break/', '/@continue/', '/\{\{\!(.*?)\!\}\}/', '/\{\{(.*?)\}\}/'],
+			['<?php break; ?>', '<?php continue; ?>','<?php echo($1); ?>', '<?php echo(htmlspecialchars($1)); ?>'],
 			$res
 		);
 	}

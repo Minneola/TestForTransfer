@@ -16,6 +16,7 @@ class Controller
 	private $action = NULL;
 
 	private $tokens = [];
+	private $vars = [];
 
 	protected $parser = ['{_', '_}'];
 
@@ -27,6 +28,11 @@ class Controller
 	protected function addToken($key, $value)
 	{
 		$this->tokens[strtolower($key)] = $value;
+	}
+
+	protected function addVar($key, $value)
+	{
+		$this->vars[strtolower($key)] = $value;
 	}
 
 	public function lyer($lawyer = NULL)
@@ -71,6 +77,9 @@ class Controller
 	{
 		$c = file_get_contents( $this->app()->viewPath() .$this->lawyer.'.php');
 		ob_start ();
+
+		foreach($this->vars as $key => $value) $$key = $value;
+
 		eval('?>'.new Parser($c).'<?php;');
 		$result = ob_get_clean();
 		ob_end_clean();
