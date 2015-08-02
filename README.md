@@ -12,12 +12,9 @@ composer require minneola/testfoo
 
 require __DIR__ . '/vendor/autoload.php';
 
-$app = App::boot();
-
-// Using the PHP alias in the framework 
-echo Cain::call();
-
-
+$app = new \Minneola\TestFoo\Core\Application(realpath(__DIR__.'/../'));
+$app->boot();
+$app->run();
 ```
 
 
