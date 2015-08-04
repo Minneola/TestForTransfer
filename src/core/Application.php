@@ -73,26 +73,25 @@ class Application implements \ArrayAccess
 		$url = $data->request_uri;
 		$method = $data->request_method;
 
-		if(array_key_exists($url, \App::smiles()[$method]))
-		{
-
-			if(\App::smiles()[$method][$url][1] instanceof \Closure)
-				return call_user_func(\App::smiles()[$method][$url][1]);
-
-			$st = explode('@', \App::smiles()[$method][$url][1]);
-			if(count($st) != 2) throw new \Exception('Wrong controller declaration.');
-
-			$realController = 'App\\Controller\\'.$st[0];
-
-			$init = new $realController(\App::getApp());
-			$init->setControllerAction($st[1]);
-			return $init;
-		}
-		if(array_key_exists(substr($url,1), \App::smiles()[$method]))
-		{
-			return call_user_func(\App::smiles()[$method][substr($url,1)][1]);
-		}
+		if(($ctr = $this->checkExistingSmiles($url, $method)) !== FALSE) return $ctr;
+		if(($ctr = $this->checkExistingSmiles(substr($url,1), $method))!== FALSE) return $ctr;
 		return NULL;
+	}
+
+	private function checkExistingSmiles($url, $method)
+	{
+		if(!array_key_exists($url, \App::smiles()[$method])) return FALSE;
+		if(\App::smiles()[$method][$url][1] instanceof \Closure)
+			return call_user_func(\App::smiles()[$method][$url][1]);
+
+		$st = explode('@', \App::smiles()[$method][$url][1]);
+		if(count($st) != 2) throw new \Exception('Wrong controller declaration.');
+
+		$realController = 'App\\Controller\\'.$st[0];
+
+		$init = new $realController(\App::getApp());
+		$init->setControllerAction($st[1]);
+		return $init;
 	}
 
 	private function initiate()
