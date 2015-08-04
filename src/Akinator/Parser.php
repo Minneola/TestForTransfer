@@ -21,6 +21,24 @@ class Parser
 		);
 	}
 
+	protected function parseWhile($res)
+	{
+		return preg_replace(
+			['/@while\((.*?)\)/', '/@endwhile/'],
+			['<?php while($1): ?>', '<?php endwhile; ?>'],
+			$res
+		);
+	}
+
+	protected function parseFor($res)
+	{
+		return preg_replace(
+			['/@for\((.*?)\)/', '/@endfor/'],
+			['<?php for($1): ?>', '<?php endfor; ?>'],
+			$res
+		);
+	}
+
 	protected function parseIf($res)
 	{
 		return preg_replace(
@@ -41,7 +59,11 @@ class Parser
 
 	public function __construct($res)
 	{
-		$this->res = $this->parseIf($this->parseSpecials($this->parseForEach($res)));
+		$this->res = $this->parseWhile(
+			$this->parseFor(
+				$this->parseIf($this->parseSpecials($this->parseForEach($res)))
+			)
+		);
 	}
 
 	public function __toString()

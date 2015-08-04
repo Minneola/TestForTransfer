@@ -80,7 +80,11 @@ class Controller
 
 		foreach($this->vars as $key => $value) $$key = $value;
 
-		eval('?>'.new Parser($c).'<?php;');
+		$code = new Parser($c);
+
+		//var_dump($code);exit;
+
+		eval('?>'.$code.'<?php;');
 		$result = ob_get_clean();
 		ob_end_clean();
 		return $result;
