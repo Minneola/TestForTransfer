@@ -1,170 +1,74 @@
 <?php
 
-namespace Minneola\TestFoo\Core;
-
-use Minneola\TestFoo\Core\Arcadia\Loader;
-use Minneola\TestFoo\Crash\Diamon;
-use Minneola\TestFoo\Support\Facade;
+namespace Minneola\TestFoo\Akinator;
 
 /**
- * Class Application
- * @package Minneola\TestFoo\Core
- * @author Tobias Maxham
+ * Class Parser
+ * @package Minneola\TestFoo\Akinator
+ * @author Tobias Maxham <git2015@maxham.de>
  */
-class Application implements \ArrayAccess
+class Parser
 {
 
-	public static $app;
-	public  static $smiles = ['GET' => [], 'POST' => []];
+	private $res = '';
 
-	private $instances = [];
-
-	private $rootPath;
-
-	protected $aliases = [
-		'app' => 'Minneola\\TestFoo\\Core\\Application',
-		'cain' => 'Minneola\\TestFoo\\Mangold\\CainManager',
-		'smile' => 'Minneola\\TestFoo\\Macaroni\\SmileFactory',
-	];
-
-	public function __construct($path = NULL)
+	protected function parseForEach($res)
 	{
-		self::$app = $this;
-		$this->rootPath = $path;
-		return self::$app;
+		return preg_replace(
+			['/@foreach\((.*?)\)/', '/@endforeach/'],
+			['<?php foreach($1): ?>', '<?php endforeach; ?>'],
+			$res
+		);
 	}
 
-	public function rootPath()
+	protected function parseWhile($res)
 	{
-		return $this->rootPath;
+		return preg_replace(
+			['/@while\((.*?)\)/', '/@endwhile/'],
+			['<?php while($1): ?>', '<?php endwhile; ?>'],
+			$res
+		);
 	}
 
-	public function viewPath()
+	protected function parseFor($res)
 	{
-		return __DIR__ . '/../../../../../views/';
+		return preg_replace(
+			['/@for\((.*?)\)/', '/@endfor/'],
+			['<?php for($1): ?>', '<?php endfor; ?>'],
+			$res
+		);
 	}
 
-	public static function app()
+	protected function parseIf($res)
 	{
-		return self::$app;
+		return preg_replace(
+			['/@if\((.*?)\)/', '/@elseif\((.*?)\)/', '/@else/', '/@endif/'],
+			['<?php if($1): ?>', '<?php elseif($1): ?>', '<?php endif; ?>', '<?php else: ?>'],
+			$res
+		);
 	}
 
-	public static function smiles()
+	protected function parseSpecials($res)
 	{
-		$app = self::app();
-		return $app::$smiles;
+		return preg_replace(
+			['/@break/', '/@continue/', '/\{\{\!(.*?)\!\}\}/', '/\{\{(.*?)\}\}/'],
+			['<?php break; ?>', '<?php continue; ?>','<?php echo($1); ?>', '<?php echo(htmlspecialchars($1)); ?>'],
+			$res
+		);
 	}
 
-	public static function setSmile($method, $path, $attributes = NULL)
+	public function __construct($res)
 	{
-		self::$smiles[$method][$path] = [$path, $attributes];
+		$this->res = $this->parseWhile(
+			$this->parseFor(
+				$this->parseIf($this->parseSpecials($this->parseForEach($res)))
+			)
+		);
 	}
 
-	public function boot()
+	public function __toString()
 	{
-		$this->initiate();
-		$this->loadSmiles();
-		return $this;
-	}
-
-	public function run()
-	{
-		$data = new Diamon();
-		$url = $data->request_uri;
-		$method = $data->request_method;
-
-		if(($ctr = $this->checkExistingSmiles($url, $method)) !== FALSE) return $ctr;
-		if(($ctr = $this->checkExistingSmiles(substr($url,1), $method))!== FALSE) return $ctr;
-		return NULL;
-	}
-
-	private function checkExistingSmiles($url, $method)
-	{
-		if(!array_key_exists($url, \App::smiles()[$method])) return FALSE;
-		if(\App::smiles()[$method][$url][1] instanceof \Closure)
-			return call_user_func(\App::smiles()[$method][$url][1]);
-
-		$st = explode('@', \App::smiles()[$method][$url][1]);
-		if(count($st) != 2) throw new \Exception('Wrong controller declaration.');
-
-		$realController = 'App\\Controller\\'.$st[0];
-
-		$init = new $realController(\App::getApp());
-		$init->setControllerAction($st[1]);
-		return $init;
-	}
-
-	private function initiate()
-	{
-		Facade::clearAll();
-		Facade::setApp($this);
-		Loader::getInstance($this->getAliases())->register();
-	}
-
-	/**
-	 * @return \Minneola\TestFoo\Core\Application
-	 */
-	public static function getApp()
-	{
-		return self::$app;
-	}
-
-	private function loadSmiles()
-	{
-		$file = $this->rootPath . '/app/smiles.php';
-		if(!file_exists($file)) throw new \Exception("The File $file was not found!");
-		require_once $file;
-	}
-
-	/**
-	 * @return array $aliases
-	 */
-	public function getAliases()
-	{
-		return require $this->rootPath . '/config/setup.php';
-	}
-
-	public function alias()
-	{
-		foreach ($this->getAliases() as $alias => $class) {
-			class_alias($class, $alias);
-		}
-	}
-
-	public function offsetExists($key)
-	{
-		return isset($this->aliases[$key]);
-	}
-
-	public function offsetGet($key)
-	{
-		return $this->make($key);
-	}
-
-	public function make($abstract)
-	{
-		$abstract = $this->getAlias($abstract);
-		return new $abstract;
-	}
-
-	protected function getAlias($abstract)
-	{
-		return isset($this->aliases[$abstract]) ? $this->aliases[$abstract] : $abstract;
-	}
-
-	public function offsetSet($key, $value)
-	{
-		if (!$value instanceof \Closure) {
-			$value = function () use ($value) {
-				return $value;
-			};
-		}
-		$this->instances[$key] = $value;
-	}
-
-	public function offsetUnset($key)
-	{
-		unset($this->instances[$key]);
+		return $this->res;
 	}
 
 } 
