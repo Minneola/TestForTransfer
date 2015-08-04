@@ -29,8 +29,14 @@ class Application implements \ArrayAccess
 
 	public function __construct($path = NULL)
 	{
-		self::$app = $this;
-		$this->rootPath = $path;
+		//var_dump($path, self::$app);
+		if(isset(self::$app)){
+			$this->rootPath = self::app()->rootPath();
+		} else {
+
+			$this->rootPath = $path;
+		}
+		self::$app = &$this;
 		return self::$app;
 	}
 

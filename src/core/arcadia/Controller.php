@@ -76,15 +76,34 @@ class Controller
 	private function parseHTML()
 	{
 		$c = file_get_contents( $this->app()->viewPath() .$this->lawyer.'.php');
+
+		try{
+			return $this->doParseTemplate($c);
+		} catch(\Exception $e){
+			echo $e->getMessage();
+			return '';
+		}
+	}
+
+	private function doParseTemplate($badCode)
+	{
 		ob_start ();
 
 		foreach($this->vars as $key => $value) $$key = $value;
 
-		$code = new Parser($c);
+		$code = new Parser($badCode);
 
 		//var_dump($code);exit;
+		$response = @eval('?>'.$code.'<?php;');
 
-		eval('?>'.$code.'<?php;');
+		if(error_get_last())
+		{
+			$line = error_get_last()['line'];
+			$error = error_get_last()['message'];
+
+			throw new \Exception('Bad Template! With Error: "'.$error.'" on Line '.$line.'.');
+		}
+
 		$result = ob_get_clean();
 		ob_end_clean();
 		return $result;

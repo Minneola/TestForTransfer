@@ -48,6 +48,15 @@ class Parser
 		);
 	}
 
+	protected function parseInclude($res)
+	{
+		return preg_replace(
+			['/@include\((.*?)\)/'],
+			['<?php @require(\App::rootPath()."/views/$1.php"); ?>'],
+			$res
+		);
+	}
+
 	protected function parseSpecials($res)
 	{
 		return preg_replace(
@@ -60,9 +69,9 @@ class Parser
 	public function __construct($res)
 	{
 		$this->res = $this->parseWhile(
-			$this->parseFor(
-				$this->parseIf($this->parseSpecials($this->parseForEach($res)))
-			)
+			$this->parseFor($this->parseInclude(
+					$this->parseIf($this->parseSpecials($this->parseForEach($res)))
+				))
 		);
 	}
 
