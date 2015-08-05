@@ -24,6 +24,7 @@ class Application implements \ArrayAccess
 	protected $aliases = [
 		'app' => 'Minneola\\TestFoo\\Core\\Application',
 		'cain' => 'Minneola\\TestFoo\\Mangold\\CainManager',
+		'file' => 'Minneola\\TestFoo\\Fichier\\Fichier',
 		'smile' => 'Minneola\\TestFoo\\Macaroni\\SmileFactory',
 	];
 
