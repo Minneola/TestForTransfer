@@ -12,7 +12,7 @@ class Podanie
 
    public function all()
    {
-      return $_POST;
+      return [$_POST, $_GET];
    }
 
 }
