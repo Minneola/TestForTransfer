@@ -26,6 +26,7 @@ class Application implements \ArrayAccess
 		'cain' => 'Minneola\\TestFoo\\Mangold\\CainManager',
 		'file' => 'Minneola\\TestFoo\\Fichier\\Fichier',
 		'smile' => 'Minneola\\TestFoo\\Macaroni\\SmileFactory',
+                'pod' => 'Minneola\\TestFoo\\Pod\\Podanie',
 	];
 
 	public function __construct($path = NULL)
