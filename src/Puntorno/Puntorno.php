@@ -2,11 +2,15 @@
 
 namespace Minneola\TestFoo\Puntorno;
 
-class Puntorno 
+/**
+ * Class Puntorno
+ * @package Minneola\TestFoo\Puntorno
+ */
+class Puntorno
 {
 
-   public function __construct($file)
-   {
-      // do stuff
-   }
+	public function __construct($file)
+	{
+		// do stuff
+	}
 }

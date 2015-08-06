@@ -15,7 +15,7 @@ class Application implements \ArrayAccess
 {
 
 	public static $app;
-	public  static $smiles = ['GET' => [], 'POST' => []];
+	public static $smiles = ['GET' => [], 'POST' => []];
 
 	private $instances = [];
 
@@ -26,13 +26,13 @@ class Application implements \ArrayAccess
 		'cain' => 'Minneola\\TestFoo\\Mangold\\CainManager',
 		'file' => 'Minneola\\TestFoo\\Fichier\\Fichier',
 		'smile' => 'Minneola\\TestFoo\\Macaroni\\SmileFactory',
-                'pod' => 'Minneola\\TestFoo\\Pod\\Podanie',
+		'pod' => 'Minneola\\TestFoo\\Pod\\Podanie',
 	];
 
 	public function __construct($path = NULL)
 	{
 		//var_dump($path, self::$app);
-		if(isset(self::$app)){
+		if (isset(self::$app)) {
 			$this->rootPath = self::app()->rootPath();
 		} else {
 
@@ -81,21 +81,21 @@ class Application implements \ArrayAccess
 		$url = $data->request_uri;
 		$method = $data->request_method;
 
-		if(($ctr = $this->checkExistingSmiles($url, $method)) !== FALSE) return $ctr;
-		if(($ctr = $this->checkExistingSmiles(substr($url,1), $method))!== FALSE) return $ctr;
+		if (($ctr = $this->checkExistingSmiles($url, $method)) !== FALSE) return $ctr;
+		if (($ctr = $this->checkExistingSmiles(substr($url, 1), $method)) !== FALSE) return $ctr;
 		return NULL;
 	}
 
 	private function checkExistingSmiles($url, $method)
 	{
-		if(!array_key_exists($url, \App::smiles()[$method])) return FALSE;
-		if(\App::smiles()[$method][$url][1] instanceof \Closure)
+		if (!array_key_exists($url, \App::smiles()[$method])) return FALSE;
+		if (\App::smiles()[$method][$url][1] instanceof \Closure)
 			return call_user_func(\App::smiles()[$method][$url][1]);
 
 		$st = explode('@', \App::smiles()[$method][$url][1]);
-		if(count($st) != 2) throw new \Exception('Wrong controller declaration.');
+		if (count($st) != 2) throw new \Exception('Wrong controller declaration.');
 
-		$realController = 'App\\Controller\\'.$st[0];
+		$realController = 'App\\Controller\\' . $st[0];
 
 		$init = new $realController(\App::getApp());
 		$init->setControllerAction($st[1]);
@@ -120,7 +120,7 @@ class Application implements \ArrayAccess
 	private function loadSmiles()
 	{
 		$file = $this->rootPath . '/app/smiles.php';
-		if(!file_exists($file)) throw new \Exception("The File $file was not found!");
+		if (!file_exists($file)) throw new \Exception("The File $file was not found!");
 		require_once $file;
 	}
 
