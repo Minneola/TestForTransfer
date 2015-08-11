@@ -36,6 +36,11 @@ class Puntorno
 
 	public function undo()
 	{
+
+	}
+
+	public function gain()
+	{
 		
 	}
 }
