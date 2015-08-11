@@ -18,29 +18,4 @@ class Puntorno
 	{
 
 	}
-
-	public function merge()
-	{
-
-	}
-
-	public function remove()
-	{
-
-	}
-
-	public function over()
-	{
-
-	}
-
-	public function undo()
-	{
-
-	}
-
-	public function gain()
-	{
-		
-	}
 }
