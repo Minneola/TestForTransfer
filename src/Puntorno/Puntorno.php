@@ -13,4 +13,9 @@ class Puntorno
 	{
 		// do stuff
 	}
+
+	public function load()
+	{
+		
+	}
 }
