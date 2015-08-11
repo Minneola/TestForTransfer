@@ -21,6 +21,11 @@ class Puntorno
 
 	public function merge()
 	{
+
+	}
+
+	public function remove()
+	{
 		
 	}
 }
