@@ -16,6 +16,11 @@ class Puntorno
 
 	public function load()
 	{
+
+	}
+
+	public function merge()
+	{
 		
 	}
 }
