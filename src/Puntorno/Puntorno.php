@@ -31,6 +31,11 @@ class Puntorno
 
 	public function over()
 	{
+
+	}
+
+	public function undo()
+	{
 		
 	}
 }
