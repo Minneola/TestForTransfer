@@ -26,6 +26,11 @@ class Puntorno
 
 	public function remove()
 	{
+
+	}
+
+	public function over()
+	{
 		
 	}
 }
