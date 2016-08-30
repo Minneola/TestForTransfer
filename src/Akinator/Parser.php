@@ -1,4 +1,12 @@
 <?php
+/**
+ * This file is part of the Minneola Project.
+ * Copyright (c) 2016 Tobias Maxham <git2016@maxham.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ * Feel free to edit as you please, and have fun.
+ */
 
 namespace Minneola\TestFoo\Akinator;
 
@@ -10,9 +18,16 @@ namespace Minneola\TestFoo\Akinator;
 class Parser
 {
 
-	private $res = '';
+    /**
+     * @var mixed|string
+     */
+    private $res = '';
 
-	protected function parseForEach($res)
+    /**
+     * @param $res
+     * @return mixed
+     */
+    protected function parseForEach($res)
 	{
 		return preg_replace(
 			['/@foreach\((.*?)\)/', '/@endforeach/'],
@@ -21,7 +36,11 @@ class Parser
 		);
 	}
 
-	protected function parseWhile($res)
+    /**
+     * @param $res
+     * @return mixed
+     */
+    protected function parseWhile($res)
 	{
 		return preg_replace(
 			['/@while\((.*?)\)/', '/@endwhile/'],
@@ -30,7 +49,11 @@ class Parser
 		);
 	}
 
-	protected function parseFor($res)
+    /**
+     * @param $res
+     * @return mixed
+     */
+    protected function parseFor($res)
 	{
 		return preg_replace(
 			['/@for\((.*?)\)/', '/@endfor/'],
@@ -39,7 +62,11 @@ class Parser
 		);
 	}
 
-	protected function parseIf($res)
+    /**
+     * @param $res
+     * @return mixed
+     */
+    protected function parseIf($res)
 	{
 		return preg_replace(
 			['/@if\((.*?)\)/', '/@elseif\((.*?)\)/', '/@else/', '/@endif/'],
@@ -48,7 +75,11 @@ class Parser
 		);
 	}
 
-	protected function parseInclude($res)
+    /**
+     * @param $res
+     * @return mixed
+     */
+    protected function parseInclude($res)
 	{
 		return preg_replace(
 			['/@include\((.*?)\)/'],
@@ -57,7 +88,11 @@ class Parser
 		);
 	}
 
-	protected function parseSpecials($res)
+    /**
+     * @param $res
+     * @return mixed
+     */
+    protected function parseSpecials($res)
 	{
 		return preg_replace(
 			['/@break/', '/@continue/', '/\{\{\!(.*?)\!\}\}/', '/\{\{(.*?)\}\}/'],
@@ -66,7 +101,11 @@ class Parser
 		);
 	}
 
-	public function __construct($res)
+    /**
+     * Parser constructor.
+     * @param $res
+     */
+    public function __construct($res)
 	{
 		$this->res = $this->parseWhile(
 			$this->parseFor($this->parseInclude(
@@ -75,7 +114,10 @@ class Parser
 		);
 	}
 
-	public function __toString()
+    /**
+     * @return mixed|string
+     */
+    public function __toString()
 	{
 		return $this->res;
 	}
