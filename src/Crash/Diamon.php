@@ -18,9 +18,12 @@ namespace Minneola\TestFoo\Crash;
 class Diamon extends Circle
 {
 
-	public function dataSource()
+    /**
+     * @return mixed
+     */
+    public function dataSource()
 	{
 		return $_SERVER;
 	}
 
-} 
+}
