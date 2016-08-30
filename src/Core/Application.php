@@ -1,4 +1,12 @@
 <?php
+/**
+ * This file is part of the Minneola Project.
+ * Copyright (c) 2016 Tobias Maxham <git2016@maxham.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ * Feel free to edit as you please, and have fun.
+ */
 
 namespace Minneola\TestFoo\Core;
 
@@ -14,14 +22,29 @@ use Minneola\TestFoo\Support\Facade;
 class Application implements \ArrayAccess
 {
 
-	public static $app;
-	public static $smiles = ['GET' => [], 'POST' => []];
+    /**
+     * @var Application
+     */
+    public static $app;
+    /**
+     * @var array
+     */
+    public static $smiles = ['GET' => [], 'POST' => []];
 
-	private $instances = [];
+    /**
+     * @var array
+     */
+    private $instances = [];
 
-	private $rootPath;
+    /**
+     * @var null
+     */
+    private $rootPath;
 
-	protected $aliases = [
+    /**
+     * @var array
+     */
+    protected $aliases = [
 		'app' => 'Minneola\\TestFoo\\Core\\Application',
 		'cain' => 'Minneola\\TestFoo\\Mangold\\CainManager',
 		'file' => 'Minneola\\TestFoo\\Fichier\\Fichier',
@@ -29,9 +52,21 @@ class Application implements \ArrayAccess
 		'pod' => 'Minneola\\TestFoo\\Pod\\Podanie',
 	];
 
-	public function __construct($path = NULL)
+    /**
+     * @var array
+     */
+    private $defaultAliases = [
+        'App' => 'Minneola\\TestFoo\\Support\\Facades\\App',
+        'Cain' => 'Minneola\\TestFoo\\Support\\Facades\\Cain',
+        'Smile' => 'Minneola\\TestFoo\\Support\\Facades\\Smile',
+    ];
+
+    /**
+     * Application constructor.
+     * @param null $path
+     */
+    public function __construct($path = NULL)
 	{
-		//var_dump($path, self::$app);
 		if (isset(self::$app)) {
 			$this->rootPath = self::app()->rootPath();
 		} else {
@@ -42,40 +77,63 @@ class Application implements \ArrayAccess
 		return self::$app;
 	}
 
-	public function rootPath()
+    /**
+     * @return null
+     */
+    public function rootPath()
 	{
 		return $this->rootPath;
 	}
 
-	public function viewPath()
+    /**
+     * @return string
+     */
+    public function viewPath()
 	{
 		return __DIR__ . '/../../../../../views/';
 	}
 
-	public static function app()
+    /**
+     * @return Application
+     */
+    public static function app()
 	{
 		return self::$app;
 	}
 
-	public static function smiles()
+    /**
+     * @return array
+     */
+    public static function smiles()
 	{
 		$app = self::app();
 		return $app::$smiles;
 	}
 
-	public static function setSmile($method, $path, $attributes = NULL)
+    /**
+     * @param $method
+     * @param $path
+     * @param null $attributes
+     */
+    public static function setSmile($method, $path, $attributes = NULL)
 	{
 		self::$smiles[$method][$path] = [$path, $attributes];
 	}
 
-	public function boot()
+    /**
+     * @return $this
+     */
+    public function boot()
 	{
 		$this->initiate();
 		$this->loadSmiles();
 		return $this;
 	}
 
-	public function run()
+    /**
+     * @return bool|mixed|null
+     */
+    public function run()
 	{
 		$data = new Diamon();
 		$url = $data->request_uri;
@@ -86,7 +144,13 @@ class Application implements \ArrayAccess
 		return NULL;
 	}
 
-	private function checkExistingSmiles($url, $method)
+    /**
+     * @param $url
+     * @param $method
+     * @return bool|mixed
+     * @throws \Exception
+     */
+    private function checkExistingSmiles($url, $method)
 	{
 		if (!array_key_exists($url, \App::smiles()[$method])) return FALSE;
 		if (\App::smiles()[$method][$url][1] instanceof \Closure)
@@ -102,11 +166,14 @@ class Application implements \ArrayAccess
 		return $init;
 	}
 
-	private function initiate()
+    /**
+     *
+     */
+    private function initiate()
 	{
 		Facade::clearAll();
 		Facade::setApp($this);
-		Loader::getInstance($this->getAliases())->register();
+		Loader::getInstance($this->getAllAliases())->register();
 	}
 
 	/**
@@ -117,7 +184,20 @@ class Application implements \ArrayAccess
 		return self::$app;
 	}
 
-	private function loadSmiles()
+    /**
+     * @return array
+     */
+    protected function getAllAliases()
+    {
+        $setup = $this->getAliases();
+        $basic = $this->defaultAliases;
+        return array_merge($setup, $basic);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    private function loadSmiles()
 	{
 		$file = $this->rootPath . '/app/smiles.php';
 		if (!file_exists($file)) throw new \Exception("The File $file was not found!");
@@ -129,38 +209,63 @@ class Application implements \ArrayAccess
 	 */
 	public function getAliases()
 	{
-		return require $this->rootPath . '/config/setup.php';
+	    $file = $this->rootPath . '/config/setup.php';
+        if(!file_exists($file)) return [];
+		return require $file;
 	}
 
-	public function alias()
+    /**
+     *
+     */
+    public function alias()
 	{
 		foreach ($this->getAliases() as $alias => $class) {
 			class_alias($class, $alias);
 		}
 	}
 
-	public function offsetExists($key)
+    /**
+     * @param mixed $key
+     * @return bool
+     */
+    public function offsetExists($key)
 	{
 		return isset($this->aliases[$key]);
 	}
 
-	public function offsetGet($key)
+    /**
+     * @param mixed $key
+     * @return mixed
+     */
+    public function offsetGet($key)
 	{
 		return $this->make($key);
 	}
 
-	public function make($abstract)
+    /**
+     * @param $abstract
+     * @return mixed
+     */
+    public function make($abstract)
 	{
 		$abstract = $this->getAlias($abstract);
 		return new $abstract;
 	}
 
-	protected function getAlias($abstract)
+    /**
+     * @param $abstract
+     * @return mixed
+     */
+    protected function getAlias($abstract)
 	{
 		return isset($this->aliases[$abstract]) ? $this->aliases[$abstract] : $abstract;
 	}
 
-	public function offsetSet($key, $value)
+    /**
+     * @param mixed $key
+     * @param mixed $value
+     */
+    public function offsetSet($key, $value)
 	{
 		if (!$value instanceof \Closure) {
 			$value = function () use ($value) {
@@ -170,7 +275,10 @@ class Application implements \ArrayAccess
 		$this->instances[$key] = $value;
 	}
 
-	public function offsetUnset($key)
+    /**
+     * @param mixed $key
+     */
+    public function offsetUnset($key)
 	{
 		unset($this->instances[$key]);
 	}
